@@ -1,100 +1,140 @@
-import Image from "next/image";
+'use client';
+import { useState } from "react";
+import QRCode from "qrcode";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [text, setText] = useState("");
+  const [url, setUrl] = useState("");
+  const [qrCode, setQrCode] = useState(""); 
+  const [submittedUrl, setSubmittedUrl] = useState("");
+  const [isFormVisible, setIsFormVisible] = useState(true);
+  const [filename, setFilename] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const generateQrCode = async (link) => {
+    try {
+      const qr = await QRCode.toDataURL(link);
+      setQrCode(qr);
+    } catch (error) {
+      console.error("Error generating QR code:", error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("/api/url", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text, url }),
+    });
+
+    if (res.ok) {
+      const newUrl = await res.json();
+      setSubmittedUrl(newUrl.data.url); 
+      setFilename(newUrl.data.text || "qrcode"); 
+      generateQrCode(newUrl.data.url);
+      setText("");
+      setUrl("");
+      setIsFormVisible(false); 
+      setErrorMessage(""); 
+    } else {
+      const error = await res.json();
+      setErrorMessage(error.message || "An error occurred, please try again.");
+    }
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = qrCode;
+    link.download = `${filename}.png`; 
+    link.click();
+    resetForm(); 
+  };
+
+  const resetForm = () => {
+    setQrCode("");
+    setSubmittedUrl("");
+    setFilename("");
+    setIsFormVisible(true); 
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 min-h-screen flex flex-col items-center justify-center text-white">
+      {/* Title */}
+      <h1 className="text-center text-4xl font-medium tracking-tight md:text-7xl mb-8">
+        Manage Your URLs
+      </h1>
+
+      {/* Form */}
+      {isFormVisible && (
+        <div className="mt-8 mx-auto max-w-lg px-4 sm:px-6 md:px-8">
+          {errorMessage && (
+            <div className="mt-4 text-red-600 text-center">
+              <p>{errorMessage}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <input
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 p-3 text-lg text-slate-700 focus:border-slate-500 focus:ring-2 focus:ring-slate-500 focus:outline-none transition duration-300"
+              placeholder="Enter description"
+              name="text"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 p-3 text-lg text-slate-700 focus:border-slate-500 focus:ring-2 focus:ring-slate-500 focus:outline-none transition duration-300"
+              placeholder="Enter URL"
+              name="url"
+            />
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-slate-600 px-5 py-3 text-lg font-semibold text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition duration-300"
+            >
+              Submit
+            </button>
+          </form>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      )}
+
+      {/* Display URL and QR Code */}
+      {!isFormVisible && (
+        <div className="mt-8 text-center">
+          <h2 className="text-2xl font-medium text-slate-200">Submitted URL:</h2>
+          <p className="mt-2 text-slate-200">
+            <a
+              href={submittedUrl}
+              className="text-blue-200 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {submittedUrl}
+            </a>
+          </p>
+          {qrCode && (
+            <div className="mt-6">
+              <h3 className="text-lg font-medium text-slate-200">QR Code:</h3>
+              <img src={qrCode} alt="QR Code" className="mx-auto mt-4 w-40 h-40 border border-slate-300 shadow-md rounded-lg" />
+              <button
+                onClick={handleDownload}
+                className="mt-4 inline-block rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition duration-300"
+              >
+                Download QR Code
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <footer className="mt-8 text-white py-4 text-center">
+        <p>&copy; {new Date().getFullYear()}. All rights reserved.</p>
       </footer>
     </div>
   );
