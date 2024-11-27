@@ -9,6 +9,21 @@ const UrlSchema = new mongoose.Schema({
   url: {
     type: String,
     required: true,
+  },
+  count : {
+    type : String,
+    default : 0
+  },
+  slug : {
+    type : String,
+    unique : true,
+    lowercase : true,
+    trim : true,
+    index : true,
+    sparse : true,
+    default : function() {
+      return this.text.toLowerCase().replace(/\s+/g, '-');
+    }
   }
 });
 

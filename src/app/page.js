@@ -33,9 +33,8 @@ export default function Home() {
 
     if (res.ok) {
       const newUrl = await res.json();
-      setSubmittedUrl(newUrl.data.url); 
       setFilename(newUrl.data.text || "qrcode"); 
-      generateQrCode(newUrl.data.url);
+      generateQrCode(`https://qr-fy.vercel.app/${newUrl.data.slug}`);
       setText("");
       setUrl("");
       setIsFormVisible(false); 
@@ -107,17 +106,6 @@ export default function Home() {
       {/* Display URL and QR Code */}
       {!isFormVisible && (
         <div className="mt-8 text-center">
-          <h2 className="text-2xl font-medium text-slate-200">Submitted URL:</h2>
-          <p className="mt-2 text-slate-200">
-            <a
-              href={submittedUrl}
-              className="text-blue-200 underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {submittedUrl}
-            </a>
-          </p>
           {qrCode && (
             <div className="mt-6">
               <h3 className="text-lg font-medium text-slate-200">QR Code:</h3>
