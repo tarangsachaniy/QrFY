@@ -11,7 +11,7 @@ const UrlSchema = new mongoose.Schema({
     required: true,
   },
   count : {
-    type : String,
+    type : Number,
     default : 0
   },
   slug : {
