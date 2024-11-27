@@ -1,16 +1,26 @@
 import { redirect } from "next/navigation";
+import { connectToDatabase } from "@/lib/mongodb";
+import Url from "@/models/Url";
 
 export default async function Page({ params }) {
-  const res = await fetch(`https://qr-fy.vercel.app/api/slug/${params.slug}`, {
-    method: "GET",
-  });
 
-  if (!res.ok) {
-    return <h1>Slug not found</h1>;
+  await connectToDatabase();
+
+  const shorturl = params.shorturl;
+
+
+  const doc = await Url.findOneAndUpdate(
+    { shorturl },             
+    { $inc: { count: 1 } },                  
+  );
+
+  if (doc) {
+
+    redirect(doc.url);
+  } else {
+
+    redirect(process.env.NEXT_PUBLIC_HOST || "/");
   }
 
-  const { url } = await res.json();
-
-  // Redirect client to the original URL
-  redirect(url);
+  return null;
 }

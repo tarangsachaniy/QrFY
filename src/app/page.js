@@ -6,7 +6,6 @@ export default function Home() {
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
   const [qrCode, setQrCode] = useState(""); 
-  const [submittedUrl, setSubmittedUrl] = useState("");
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [filename, setFilename] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
