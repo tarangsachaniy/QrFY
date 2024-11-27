@@ -8,7 +8,7 @@ export async function GET() {
   await connectToDatabase();
 
   try {
-    const analyticsData = await Url.find({}, { text: 1 ,url : 1, slug: 1, count: 1 }); 
+    const analyticsData = await Url.find({}, { text: 1 ,url : 1, slug: 1, count: 1 }); // Retrieve shorturl, url, and count
     return new Response(JSON.stringify(analyticsData), { status: 200 });
   } catch (error) {
     console.error("Error fetching analytics data:", error);
