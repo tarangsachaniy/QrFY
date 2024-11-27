@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 export default async function Page({ params }) {
-  const res = await fetch(`/api/slug/${params.slug}`, {
+  const res = await fetch(`https://qr-fy.vercel.app/api/slug/${params.slug}`, {
     method: "GET",
   });
 
