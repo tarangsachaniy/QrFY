@@ -63,7 +63,7 @@ export default function Home() {
     <div className="bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 min-h-screen flex flex-col items-center justify-center text-white">
       {/* Title */}
       <h1 className="text-center text-4xl font-medium tracking-tight md:text-7xl mb-8">
-        Manage Your URLs
+        Manage Your URLs <br /> By QrFy
       </h1>
 
       {/* Form */}
