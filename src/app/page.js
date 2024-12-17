@@ -33,7 +33,7 @@ export default function Home() {
     if (res.ok) {
       const newUrl = await res.json();
       setFilename(newUrl.data.text || "qrcode"); 
-      generateQrCode(`https://qr-fy.vercel.app/${newUrl.data.slug}`);
+      generateQrCode(newUrl.data.url);
       setText("");
       setUrl("");
       setIsFormVisible(false); 
