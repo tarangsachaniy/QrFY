@@ -9,18 +9,23 @@ export default function Home() {
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [filename, setFilename] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const generateQrCode = async (link) => {
     try {
+      setIsLoading(true);
       const qr = await QRCode.toDataURL(link);
       setQrCode(qr);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Error generating QR code:", error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const res = await fetch("/api/url", {
       method: "POST",
@@ -42,6 +47,8 @@ export default function Home() {
       const error = await res.json();
       setErrorMessage(error.message || "An error occurred, please try again.");
     }
+
+    setIsLoading(false);
   };
 
   const handleDownload = () => {
@@ -54,19 +61,16 @@ export default function Home() {
 
   const resetForm = () => {
     setQrCode("");
-    setSubmittedUrl("");
     setFilename("");
     setIsFormVisible(true); 
   };
 
   return (
     <div className="bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 min-h-screen flex flex-col items-center justify-center text-white">
-      {/* Title */}
       <h1 className="text-center text-4xl font-medium tracking-tight md:text-7xl mb-8">
         Manage Your URLs <br /> By QrFy
       </h1>
 
-      {/* Form */}
       {isFormVisible && (
         <div className="mt-8 mx-auto max-w-lg px-4 sm:px-6 md:px-8">
           {errorMessage && (
@@ -99,10 +103,15 @@ export default function Home() {
               Submit
             </button>
           </form>
+
+          {isLoading && (
+            <div className="mt-4 text-center text-yellow-400">
+              <p>Generating QR Code...</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Display URL and QR Code */}
       {!isFormVisible && (
         <div className="mt-8 text-center">
           {qrCode && (
